@@ -1,0 +1,14 @@
+[{
+    "title":"xxx",
+    "salary":"xxx",
+    "experience":"xxxx",
+    "education":"xxx",
+    "postion":"xxx",
+    "address":"xxx",
+    "des":"xxx",
+    "company":{
+        "peopleNumber":"xxx",
+        "name":"xxxx",
+        "host":"xxxx"
+    }
+}]
