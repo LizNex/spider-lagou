@@ -1,11 +1,11 @@
-<!DOCTYPE html>
-<html style="height: 100%">
+  <!DOCTYPE html>
+  <html style="height: 100%">
 
-<head>
+  <head>
     <meta charset="utf-8">
-</head>
+  </head>
 
-<body style="height: 100%; margin: 0">
+  <body style="height: 100%; margin: 0">
     <div id="container" style="height: 100%"></div>
     <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/echarts.min.js"></script>
     <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts-gl/echarts-gl.min.js"></script>
@@ -16,60 +16,73 @@
     <script type="text/javascript" src="https://api.map.baidu.com/api?v=2.0&ak=ZUONbpqGBsYGXNIYHicvbAbM"></script>
     <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/extension/bmap.min.js"></script>
     <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/simplex.js"></script>
-    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
-        crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
     <script type="text/javascript">
-        var dom = document.getElementById("container");
-        var myChart = echarts.init(dom);
-        var app = {};
-        option = null;
-        app.title = '上海前端热力图';
+  var dom = document.getElementById("container");
+  var myChart = echarts.init(dom);
+  var app = {};
+  option = null;
+  app.title = '上海前端热力图';
 
-        $.get('data/point.json', function (data) {
+  $.get('data/point.json', function (data) {
 
-            var points = data.map(function (comp) {
-                return comp.postion.concat( comp.salaryAverage )
-            });
+    var points = data.map(function (comp) {
+        let arr
 
-            myChart.setOption(option = {
-                animation: false,
-                bmap: {
-                    center: [121.48, 31.22],
-                    zoom: 10,
-                    roam: true
-                },
-                visualMap: {
-                    show: true,
-                    top: 'top',
-                    min:0,
-                    max:50,
-                    calculable: true,
-                    inRange: {
-                        // color: ['#50a3ba', '#eac736', '#d94e5d'],
-                        color: ['blue', 'blue', 'green', 'yellow', 'red']
+      try {
+        arr= [
+          JSON.parse(comp.postion[0]),
+          JSON.parse(comp.postion[1]),
+          comp.salary
+        ]
+      } catch (error) {
+        console.log([
+          comp.postion[0],
+          comp.postion[1],
+          comp.salary
+        ])
+      }
+      return arr
 
+    });
 
-                    }
-                },
-                series: [{
-                    type: 'heatmap',
-                    coordinateSystem: 'bmap',
-                    data: points,
-                    pointSize: 5,
-                    blurSize: 6
-                }]
-            });
-            if (!app.inNode) {
-                // 添加百度地图插件
-                var bmap = myChart.getModel().getComponent('bmap').getBMap();
-                bmap.addControl(new BMap.MapTypeControl());
-            }
-        });
-        ;
-        if (option && typeof option === "object") {
-            myChart.setOption(option, true);
+    myChart.setOption(option = {
+      animation: false,
+      bmap: {
+        center: [121.48, 31.22],
+        zoom: 10,
+        roam: true
+      },
+      visualMap: {
+        show: true,
+        top: 'top',
+        min: 0,
+        max: 50,
+        calculable: true,
+        inRange: {
+          // color: ['#50a3ba', '#eac736', '#d94e5d'],
+          color: ['blue', 'blue', 'green', 'yellow', 'red']
+
         }
+      },
+      series: [{
+        type: 'heatmap',
+        coordinateSystem: 'bmap',
+        data: points,
+        pointSize: 5,
+        blurSize: 6
+      }]
+    });
+    if (!app.inNode) {
+      // 添加百度地图插件
+      var bmap = myChart.getModel().getComponent('bmap').getBMap();
+      bmap.addControl(new BMap.MapTypeControl());
+    }
+  });;
+  if (option && typeof option === "object") {
+    myChart.setOption(option, true);
+  }
     </script>
-</body>
+  </body>
 
-</html>
+  </html>
