@@ -1,22 +1,24 @@
 const async = require("async");
 const fs = require("fs");
-const cheerio = require("cheerio");
-
-const request = require("./request");
-const file = require("./file");
+const cheerio = require("cheerio");         //读取解析获得网页插件
+const request = require("./request");       //请求模块
+const file = require("./file");             //文件操作模块
 
 const SUCCESS = "SUCCESS";
 const FAIL = "FAIL";
 
-let IdList = [];
-let dataTempList = [];
-let num = 0;
-let fileCount = 1;
-let infoSize = 15;
-let totalPage=1;
+let IdList = [];                    //id列表
+let dataTempList = [];              //数据列表
+let num = 0;                        //当前页数
+let fileCount = 1;                  //生成的文件计数
+let infoSize = 15;                  //生成的文件中包含信息的条数
+let totalPage=1;                    //设定爬取总页数
 
-let pathData = "./public/data";
-let writeData = file.writeData(infoSize);
+let pathData = "./public/data";     //生成数据的路径
+let writeData = file.writeData(infoSize);   //给予柯里化的file.writeData函数赋予size
+
+
+
 
 module.exports = async function start() {
   console.log("开始爬取数据");
@@ -25,18 +27,20 @@ module.exports = async function start() {
   console.log(`总页数为：${totalPage}`);
   pageList = Array.from({ length: totalPage }, (v, k) => k + 1);
 
+  //主流程
   async.series(
     [
+      //删除老旧数据
       callback => {
         file.delData(pathData);
         callback(null, SUCCESS);
       },
+      //获得所有ID
       callback => {
-        //获得所有ID
         getIdList(callback);
       },
+      //获得所有详情数据
       callback => {
-        //获得所有详情数据
         getDetail(callback);
       }
     ],
@@ -46,15 +50,16 @@ module.exports = async function start() {
   );
 };
 
+//获取id列表
 function getIdList(callback) {
   async.mapLimit(
     pageList,
-    3,
+    3,                                              //控制并发数为3
     async (pn, cb) => {
-      let list;
-      list = await request.getList({ pn });
-
+    
+      let list = await request.getList({ pn });
       let result = list.content.positionResult.result;
+
       for (item of result) {
         IdList.push(item.positionId);
       }
@@ -62,17 +67,17 @@ function getIdList(callback) {
       console.log(`正在获取第${pn}页ID`);
       cb(null, SUCCESS);
     },
-    (err, res) => {
+    (err, res) => {                                 //遍历完所有数据后的回调
       console.log("ID列表获取完成");
       callback(null, SUCCESS);
     }
   );
 }
-
+//获取详情
 function getDetail(callback) {
   async.mapLimit(
     IdList,
-    3,
+    3,                                              
     async (id, cb) => {
       let pres;
       try {
@@ -84,6 +89,8 @@ function getDetail(callback) {
       let data = resolveDetail(pres);
       dataTempList.push(data);
       num++;
+
+      //写入数据
       if (num >= infoSize * fileCount) {
         writeData(dataTempList);
         fileCount++;
@@ -101,13 +108,15 @@ function getDetail(callback) {
     (err, res) => {
       file.mergeJson(pathData);
       console.log("详情获取完成");
+      console.log("请通过以下地址访问结果：localhost:3000")
       callback(null, SUCCESS);
     }
   );
 }
 
+//通过cheerio解析详情数据
 function resolveDetail(pres) {
-  let $ = cheerio.load(pres.text);
+  let $ = cheerio.load(pres.text);                  //使用cheerio加载获得的页面
   let title = $(".position-head .name").text();
   let salaryArr = $(".job_request .salary")
     .text()
