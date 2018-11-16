@@ -77,7 +77,7 @@ function getIdList(callback) {
 function getDetail(callback) {
   async.mapLimit(
     IdList,
-    3,                                              
+    3,                                              //控制并发为3
     async (id, cb) => {
       let pres;
       try {
@@ -101,7 +101,7 @@ function getDetail(callback) {
       } else {
         console.log(`正在写入第${num}条`);
         setTimeout(() => {
-          cb(null, SUCCESS);
+          cb(null, SUCCESS);                        //正常获取数据后间隔1s再请求防止被反
         }, 1000);
       }
     },

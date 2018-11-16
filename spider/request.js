@@ -21,6 +21,8 @@ let option = {
   Referer
 };
 
+
+//获取列表
 let getList = async ({ city, position, pn } = {}) => {
   city = city || "上海";
   position = position || "前端";
@@ -50,6 +52,8 @@ let getList = async ({ city, position, pn } = {}) => {
   return result;
 };
 
+
+//获取总页数
 let getTotalPage = async pageSize => {
   pageSize = pageSize || 15;
   let head = { Cookie };
@@ -57,6 +61,7 @@ let getTotalPage = async pageSize => {
   return Math.ceil(res.content.positionResult.totalCount / pageSize);
 };
 
+//获取详情
 let getDetail = id => {
   let head = {
     Cookie
